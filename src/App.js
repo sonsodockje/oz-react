@@ -2,6 +2,7 @@ import { Component, useState } from "react";
 import "./App.css";
 import ExpenseForm from "./components/ExpenseForm";
 import ExpenseList from "./components/ExpenseList";
+import Alert from "./components/Alert";
 
 const App = () => {
   const [expenses, setExpenses] = useState([
@@ -11,6 +12,7 @@ const App = () => {
 
   const [charge, setCharge] = useState("");
   const [amount, setAmount] = useState(0);
+  const [alert, setAlert] = useState({ show: false });
 
   const handleCharge = (e) => {
     setCharge(e.target.value);
@@ -22,6 +24,14 @@ const App = () => {
   const handleDelete = (id) => {
     const newExpense = expenses.filter((expense) => expense.id !== id);
     setExpenses(newExpense);
+    handleAlert({ type: "danger", text: "아이템이 삭제되었습니다." });
+  };
+
+  const handleAlert = ({ type, text }) => {
+    setAlert({ show: true, type, text });
+    setTimeout(() => {
+      setAlert({ show: false });
+    }, 7000);
   };
 
   const handleSubmit = (e) => {
@@ -35,14 +45,20 @@ const App = () => {
       setExpenses(newExpenses);
       setCharge("");
       setAmount(0);
+      handleAlert({ type: "success", text: "아이템이 생성되었습니다." });
     } else {
       console.log("error");
+      handleAlert({
+        type: "danger",
+        text: `charge는 빈 값일수 없으며 amount 값은 0보다 커야합니다.`,
+      });
     }
   };
 
   return (
     <main className="main-container">
       <div className="sub-container">
+        {alert.show ? <Alert type={alert.type} text={alert.text} /> : null}
         <h1>장바구니</h1>
 
         <div
