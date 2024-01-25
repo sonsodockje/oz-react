@@ -6,13 +6,25 @@ import Alert from "./components/Alert";
 
 const App = () => {
   const [expenses, setExpenses] = useState([
+    { id: 1, charge: "폼폼푸린", amount: 1000 },
     { id: 2, charge: "빵", amount: 1000 },
     { id: 3, charge: "맥북", amount: 20000 },
   ]);
 
+  const [id, setId] = useState("");
   const [charge, setCharge] = useState("");
   const [amount, setAmount] = useState(0);
+  const [edit, setEdit] = useState(false);
   const [alert, setAlert] = useState({ show: false });
+
+  const handleEdit = (id) => {
+    const expense = expenses.find((item) => item.id === id);
+    const { charge, amount } = expense;
+    setCharge(charge);
+    setAmount(amount);
+    setEdit(true);
+    setId(id);
+  };
 
   const handleCharge = (e) => {
     setCharge(e.target.value);
@@ -21,6 +33,7 @@ const App = () => {
   const handleAmount = (e) => {
     setAmount(e.target.valueAsNumber);
   };
+
   const handleDelete = (id) => {
     const newExpense = expenses.filter((expense) => expense.id !== id);
     setExpenses(newExpense);
@@ -38,14 +51,23 @@ const App = () => {
     e.preventDefault();
 
     if (charge !== "" && amount > 0) {
-      const newExpense = { id: crypto.randomUUID(), charge, amount };
+      if (edit) {
+        const newExpenses = expenses.map((item) => {
+          return item.id === id ? { ...item, charge, amount } : item;
+        });
+        setExpenses(newExpenses);
+        setEdit(false);
+        handleAlert({ type: "success", text: "아이템이 수정되었습니다. " });
+      } else {
+        const newExpense = { id: crypto.randomUUID(), charge, amount };
+        const newExpenses = [...expenses, newExpense];
 
-      const newExpenses = [...expenses, newExpense];
+        setExpenses(newExpenses);
+        handleAlert({ type: "success", text: "아이템이 생성되었습니다." });
+      }
 
-      setExpenses(newExpenses);
       setCharge("");
       setAmount(0);
-      handleAlert({ type: "success", text: "아이템이 생성되었습니다." });
     } else {
       console.log("error");
       handleAlert({
@@ -64,20 +86,23 @@ const App = () => {
         <div
           style={{ width: "100%", backgroundColor: "white", padding: "1rem" }}
         >
-          {/*Expense Form*/}
           <ExpenseForm
             charge={charge}
             handleSubmit={handleSubmit}
             handleCharge={handleCharge}
             amount={amount}
+            edit={edit}
             handleAmount={handleAmount}
           />
         </div>
         <div
           style={{ width: "100%", backgroundColor: "white", padding: "1rem" }}
         >
-          {/*Expense List*/}
-          <ExpenseList initialExpenses={expenses} handleDelete={handleDelete} />
+          <ExpenseList
+            initialExpenses={expenses}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+          />
         </div>
         <div
           style={{
@@ -86,7 +111,15 @@ const App = () => {
             marginTop: "1rem",
           }}
         >
-          <p style={{ fontSize: "2rem" }}>총합계:</p>
+          <p style={{ fontSize: "2rem" }}>
+            총합계:
+            <span>
+              {expenses.reduce((acc, curr) => {
+                return (acc += curr.amount);
+              }, 0)}
+              원
+            </span>
+          </p>
         </div>
       </div>
     </main>
