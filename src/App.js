@@ -34,6 +34,10 @@ const App = () => {
     setAmount(e.target.valueAsNumber);
   };
 
+  const handleClear = () => {
+    setExpenses([]);
+  };
+
   const handleDelete = (id) => {
     const newExpense = expenses.filter((expense) => expense.id !== id);
     setExpenses(newExpense);
@@ -99,9 +103,10 @@ const App = () => {
           style={{ width: "100%", backgroundColor: "white", padding: "1rem" }}
         >
           <ExpenseList
-            initialExpenses={expenses}
+            expenses={expenses}
             handleDelete={handleDelete}
             handleEdit={handleEdit}
+            handleClear={handleClear}
           />
         </div>
         <div
